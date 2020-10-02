@@ -1,0 +1,55 @@
+#1
+#transfer RRBS data to bam file
+#use bsmap 
+#script1
+#!/bin/sh
+#$ -cwd                 # use current working directory 
+#$ -j y                 # and put all output (inc errors) into it
+#$ -pe smp 10            # Request 10 CPU cores
+#$ -l h_rt=6:0:0       # Request 6 hour runtime (upto 240 hours)
+#$ -l h_vmem=1G         # Request 1GB RAM / core, i.e. 2GB total
+#$ -t 12			#test on first item in array, then change and run 2-12
+#$ -tc 10				#this specifies that 10 items can be run concurrently
+
+echo 'STARTING JOB'     # prints to your output file
+
+module load samtools    #samtools is required
+
+PREFIX=$(sed -n "${SGE_TASK_ID}p" prefix.txt)
+
+
+/PATH_TO_BSMAP/bsmap -a /PATH_TO_FASTQ_DIRECTORY/${PREFIX}.fq.gz \
+-d /PATH_TO_GENOME_FASTA/GCF_008822105.2_bTaeGut2.pat.W.v2_genomic.fna \
+-o ${PREFIX}.bam \
+-D C-CGG -D T-CGA -w 100 -v 0.08 -r 0 -p 10 -n 0 -s 12 -S 0 -f 5 -q 0 -u -V 2
+
+echo 'JOB ENDED'        # prints to your output file
+#############################################################################
+
+#2 filter this data through bed file
+#use samtools methratio.py
+#script2
+#!/bin/sh
+#$ -cwd                 # use current working directory 
+#$ -j y                 # and put all output (inc errors) into it
+#$ -pe smp 10            # Request 10 CPU cores
+#$ -l h_rt=6:0:0       # Request 6 hour runtime (upto 240 hours)
+#$ -l h_vmem=1G         # Request 1GB RAM / core, i.e. 2GB total
+#$ -t 12				#test on first item in array, then change and run 2-12
+#$ -tc 10				#this specifies that 10 items can be run concurrently
+
+echo 'STARTING JOB'     # prints to your output file
+
+module load samtools    #samtools is required
+
+PREFIX=$(sed -n "${SGE_TASK_ID}p" prefix.txt)
+
+samtools view -b -L /PATH TO BED FILE/avi_iso_bed_1.bed /PATH TO BAM FILE/${PREFIX}.bam > ${PREFIX}_interval.bam
+
+
+/PATH_TO_BSMAP/methratio.py -o ${PREFIX}_methratio.txt -d /PATH_TO_GENOME_FASTA/GCF_008822105.2_bTaeGut2.pat.W.v2_genomic.fna -z -x CG ${PREFIX}_interval.bam
+
+
+
+echo 'JOB ENDED'        # prints to your output file
+#############################################################################
