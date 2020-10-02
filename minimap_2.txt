@@ -1,5 +1,0 @@
-#merge fasta file
-#module load minimap2
-#
-minimap2 ref.fa merge.fq > approx-mapping.paf
-#缺一个paf file.

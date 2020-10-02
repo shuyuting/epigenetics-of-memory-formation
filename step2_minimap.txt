@@ -1,0 +1,8 @@
+#use linux
+#upload fasta file from step1
+#upload reference file from NCBI(refernece file is Taeniopygia guttata (zebra finch))
+#merge fasta file
+#module load minimap2
+#
+minimap2 ref.fa merge.fq > approx-mapping.paf
+#
